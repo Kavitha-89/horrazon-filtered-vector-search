@@ -1,0 +1,167 @@
+[
+  {
+    "bucket": "~100%",
+    "filters": "{}",
+    "matches": 30000,
+    "selectivity": 1.0,
+    "strategy": "planner",
+    "recall_at_10": 1.0,
+    "p50_ms": 7.347,
+    "p95_ms": 9.276,
+    "chosen": "ivf_postfilter"
+  },
+  {
+    "bucket": "~100%",
+    "filters": "{}",
+    "matches": 30000,
+    "selectivity": 1.0,
+    "strategy": "postfilter",
+    "recall_at_10": 1.0,
+    "p50_ms": 8.266,
+    "p95_ms": 10.634,
+    "chosen": "postfilter"
+  },
+  {
+    "bucket": "~100%",
+    "filters": "{}",
+    "matches": 30000,
+    "selectivity": 1.0,
+    "strategy": "prefilter",
+    "recall_at_10": 1.0,
+    "p50_ms": 5.152,
+    "p95_ms": 7.908,
+    "chosen": "prefilter"
+  },
+  {
+    "bucket": "~10%",
+    "filters": "{'price_max': 275.4617126464844}",
+    "matches": 3000,
+    "selectivity": 0.1,
+    "strategy": "planner",
+    "recall_at_10": 0.999,
+    "p50_ms": 0.366,
+    "p95_ms": 0.952,
+    "chosen": "ivf_postfilter"
+  },
+  {
+    "bucket": "~10%",
+    "filters": "{'price_max': 275.4617126464844}",
+    "matches": 3000,
+    "selectivity": 0.1,
+    "strategy": "postfilter",
+    "recall_at_10": 0.999,
+    "p50_ms": 0.433,
+    "p95_ms": 0.729,
+    "chosen": "postfilter"
+  },
+  {
+    "bucket": "~10%",
+    "filters": "{'price_max': 275.4617126464844}",
+    "matches": 3000,
+    "selectivity": 0.1,
+    "strategy": "prefilter",
+    "recall_at_10": 1.0,
+    "p50_ms": 0.311,
+    "p95_ms": 0.657,
+    "chosen": "prefilter"
+  },
+  {
+    "bucket": "~1%",
+    "filters": "{'category': 12, 'zone': 0, 'price_max': 1536.44365234375}",
+    "matches": 301,
+    "selectivity": 0.010033,
+    "strategy": "planner",
+    "recall_at_10": 1.0,
+    "p50_ms": 0.322,
+    "p95_ms": 0.544,
+    "chosen": "partition_prefilter"
+  },
+  {
+    "bucket": "~1%",
+    "filters": "{'category': 12, 'zone': 0, 'price_max': 1536.44365234375}",
+    "matches": 301,
+    "selectivity": 0.010033,
+    "strategy": "postfilter",
+    "recall_at_10": 1.0,
+    "p50_ms": 0.274,
+    "p95_ms": 0.415,
+    "chosen": "postfilter"
+  },
+  {
+    "bucket": "~1%",
+    "filters": "{'category': 12, 'zone': 0, 'price_max': 1536.44365234375}",
+    "matches": 301,
+    "selectivity": 0.010033,
+    "strategy": "prefilter",
+    "recall_at_10": 1.0,
+    "p50_ms": 0.145,
+    "p95_ms": 0.155,
+    "chosen": "prefilter"
+  },
+  {
+    "bucket": "~0.1%",
+    "filters": "{'category': 0, 'zone': 9}",
+    "matches": 30,
+    "selectivity": 0.001,
+    "strategy": "planner",
+    "recall_at_10": 1.0,
+    "p50_ms": 0.076,
+    "p95_ms": 0.086,
+    "chosen": "exact_filtered"
+  },
+  {
+    "bucket": "~0.1%",
+    "filters": "{'category': 0, 'zone': 9}",
+    "matches": 30,
+    "selectivity": 0.001,
+    "strategy": "postfilter",
+    "recall_at_10": 1.0,
+    "p50_ms": 0.171,
+    "p95_ms": 0.235,
+    "chosen": "postfilter"
+  },
+  {
+    "bucket": "~0.1%",
+    "filters": "{'category': 0, 'zone': 9}",
+    "matches": 30,
+    "selectivity": 0.001,
+    "strategy": "prefilter",
+    "recall_at_10": 1.0,
+    "p50_ms": 0.085,
+    "p95_ms": 0.136,
+    "chosen": "prefilter"
+  },
+  {
+    "bucket": "handful",
+    "filters": "{'category': 0, 'zone': 20}",
+    "matches": 1,
+    "selectivity": 3.3e-05,
+    "strategy": "planner",
+    "recall_at_10": 1.0,
+    "p50_ms": 0.094,
+    "p95_ms": 0.111,
+    "chosen": "exact_filtered"
+  },
+  {
+    "bucket": "handful",
+    "filters": "{'category': 0, 'zone': 20}",
+    "matches": 1,
+    "selectivity": 3.3e-05,
+    "strategy": "postfilter",
+    "recall_at_10": 1.0,
+    "p50_ms": 0.314,
+    "p95_ms": 0.573,
+    "chosen": "postfilter"
+  },
+  {
+    "bucket": "handful",
+    "filters": "{'category': 0, 'zone': 20}",
+    "matches": 1,
+    "selectivity": 3.3e-05,
+    "strategy": "prefilter",
+    "recall_at_10": 1.0,
+    "p50_ms": 0.067,
+    "p95_ms": 0.101,
+    "chosen": "prefilter"
+  }
+]
