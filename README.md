@@ -15,7 +15,7 @@ The implementation supports these filters:
 
 The project uses a custom Inverted File (IVF)-style vector index and a query planner that selects a search strategy based on estimated filter selectivity.
 
-The evaluation compares the planner with pre-filter and post-filter baselines using recall@10 and latency measurements across different filter-selectivity buckets.
+The evaluation compares the planner with pre-filter and post-filter baselines using Recall@10 and latency measurements across different filter-selectivity buckets.
 
 ## 2. Architecture
 
@@ -27,7 +27,7 @@ The architecture consists of five main stages:
 4. **Query planning and retrieval:** Selects a search strategy and retrieves candidate vectors.
 5. **Evaluation:** Ranks results by vector distance and measures recall and latency.
 
-The diagram source is shown below. Export it as `docs/architecture.png` and ensure the image is included in the GitHub repository before submission.
+The architecture diagram is included in `docs/architecture.png`.
 
 ![Architecture diagram](docs/architecture.png)
 
@@ -46,7 +46,7 @@ flowchart TD
     J --> K["Recall and Latency Evaluation"]
 ```
 
-The planner uses the estimated selectivity to choose a search path. The chosen strategy applies metadata filtering and retrieves candidates, after which the results are ranked by vector distance. The benchmark compares the resulting recall and latency with the baseline methods.
+The planner uses estimated selectivity to choose a search path. The selected strategy applies metadata filtering and retrieves candidates, after which the results are ranked by vector distance. The benchmark compares the resulting recall and latency with the baseline methods.
 
 ## 3. Requirements and Setup
 
@@ -75,15 +75,13 @@ python -m venv .venv
 python -m pip install --upgrade pip
 ```
 
-Install the project dependencies. If the repository contains `requirements.txt`, run:
+Install the project dependencies:
 
 ```powershell
 python -m pip install -r requirements.txt
 ```
 
-If a dependency file is not present, install the dependencies specified by the project instead. Confirm the required dependencies from the repository before submitting.
-
-Run the tests to check the installation:
+Run the tests:
 
 ```powershell
 python -m pytest -q
@@ -111,7 +109,7 @@ The dataset is intended to evaluate search behavior under different filter selec
 
 ## 5. Running the Project
 
-Run these commands from the repository root:
+Run these commands from the repository root.
 
 ### Run the demonstration
 
@@ -139,7 +137,7 @@ python -m pytest -q
 
 The demo exercises the search workflow. The benchmark compares the planner with the baseline methods, while the mutation experiment evaluates behavior after the configured dataset changes.
 
-Benchmark and mutation results are saved under the `results` directory, according to the current implementation.
+Benchmark and mutation results are saved under the `results` directory.
 
 ## 6. Index and Query Planner
 
@@ -207,94 +205,99 @@ For each bucket, the planner is compared with the post-filter and pre-filter bas
 
 Latency is reported in milliseconds. The measurements represent the tested environment and query workload; they are not production performance guarantees.
 
-The ground-truth calculation used for benchmark evaluation is separate from the timed search operation. The reported results should be interpreted in the context of the synthetic dataset and the benchmark implementation.
+The ground-truth calculation used for benchmark evaluation is separate from the timed search operation. The reported results should be interpreted in the context of the synthetic dataset and benchmark implementation.
 
 ## 8. Benchmark Results
 
-The following table contains the recorded benchmark results.
+The following values are from the recorded benchmark output. Latency is reported in milliseconds.
 
 | Bucket | Matches | Method | Recall@10 | p50 (ms) | p95 (ms) |
 |---|---:|---|---:|---:|---:|
-| ~100% | 30,000 | Planner | 1.000 | 7.347 | 9.276 |
-| ~100% | 30,000 | Post-filter | 1.000 | 8.266 | 10.634 |
-| ~100% | 30,000 | Pre-filter | 1.000 | 5.152 | 7.908 |
-| ~10% | 3,000 | Planner | 0.999 | 0.366 | 0.952 |
-| ~10% | 3,000 | Post-filter | 0.999 | 0.433 | 0.729 |
-| ~10% | 3,000 | Pre-filter | 1.000 | 0.311 | 0.657 |
-| ~1% | 301 | Planner | 1.000 | 0.322 | 0.544 |
-| ~1% | 301 | Post-filter | 1.000 | 0.274 | 0.415 |
-| ~1% | 301 | Pre-filter | 1.000 | 0.145 | 0.155 |
-| ~0.1% | 30 | Planner | 1.000 | 0.076 | 0.086 |
-| ~0.1% | 30 | Post-filter | 1.000 | 0.171 | 0.235 |
-| ~0.1% | 30 | Pre-filter | 1.000 | 0.085 | 0.136 |
-| Handful | 1 | Planner | 1.000 | 0.094 | 0.111 |
-| Handful | 1 | Post-filter | 1.000 | 0.314 | 0.573 |
-| Handful | 1 | Pre-filter | 1.000 | 0.067 | 0.101 |
+| ~100% | 30,000 | Planner | 1.000 | 5.635 | 10.600 |
+| ~100% | 30,000 | Post-filter | 1.000 | 2.654 | 3.905 |
+| ~100% | 30,000 | Pre-filter | 1.000 | 4.895 | 5.916 |
+| ~10% | 3,000 | Planner | 0.999 | 0.515 | 0.828 |
+| ~10% | 3,000 | Post-filter | 0.999 | 0.505 | 0.799 |
+| ~10% | 3,000 | Pre-filter | 1.000 | 0.359 | 0.414 |
+| ~1% | 301 | Planner | 1.000 | 0.311 | 0.380 |
+| ~1% | 301 | Post-filter | 1.000 | 0.326 | 0.522 |
+| ~1% | 301 | Pre-filter | 1.000 | 0.180 | 0.211 |
+| ~0.1% | 30 | Planner | 1.000 | 0.095 | 0.141 |
+| ~0.1% | 30 | Post-filter | 1.000 | 0.217 | 0.301 |
+| ~0.1% | 30 | Pre-filter | 1.000 | 0.095 | 0.108 |
+| Handful | 1 | Planner | 1.000 | 0.092 | 0.112 |
+| Handful | 1 | Post-filter | 1.000 | 0.481 | 0.699 |
+| Handful | 1 | Pre-filter | 1.000 | 0.097 | 0.110 |
 
 ### Observations
 
-- The planner recorded recall@10 of at least `0.999` across all five benchmark buckets.
-- For the approximately 0.1% and handful buckets, the planner was faster than the post-filter baseline in the recorded run.
-- The pre-filter baseline was faster than the planner in several buckets.
-- For the approximately 1% bucket, the planner's p50 latency was `0.322 ms`, compared with `0.145 ms` for the pre-filter baseline.
-- For the approximately 100% bucket, the planner's p50 latency was `7.347 ms`, compared with `5.152 ms` for the pre-filter baseline.
+- The planner recorded Recall@10 of at least `0.999` across all five benchmark buckets.
+- The planner selected different strategies according to the estimated filter selectivity.
+- Latency varied with the number of matching records and the retrieval strategy.
+- The pre-filter and post-filter baselines provide comparisons for assessing the planner's behavior.
+- In the broad-filter bucket, the pre-filter baseline was faster than the planner in this recorded run.
+- For highly selective queries, the planner was faster than the post-filter baseline in the recorded results.
 
-The results show that no single approach was fastest across every tested workload. The planner's performance depends on the selected strategy, filter selectivity, and the overhead of the retrieval path.
+The results show that no single approach should be assumed to be fastest across every workload. The planner's performance depends on the selected strategy, filter selectivity, and the overhead of the retrieval path.
 
 ## 9. Partition-Probing Experiment
 
-An additional experiment evaluated recall at different fractions of IVF partitions examined.
+An additional experiment evaluated Recall@10 at different fractions of IVF partitions examined. The same 100 queries were used for each probing percentage.
 
 | Partitions examined | Recall@10 |
 |---:|---:|
-| 15% | 0.943 |
-| 25% | 0.985 |
-| 50% | 1.000 |
-| 75% | 1.000 |
-| 100% | 1.000 |
+| 15% | 0.9430 |
+| 25% | 0.9850 |
+| 50% | 1.0000 |
+| 75% | 1.0000 |
+| 100% | 1.0000 |
 
 ### Observations
 
-- At 15% probing, recall@10 was `0.943`, below a `0.95` target.
-- At 25% probing, recall@10 increased to `0.985`.
-- At 50% probing and above, recall@10 was `1.000` on the evaluated workload.
+- At 15% probing, Recall@10 was `0.9430`, below the `0.95` target.
+- At 25% probing, Recall@10 increased to `0.9850`.
+- At 50% probing and above, Recall@10 was `1.0000` on the evaluated workload.
 
-These results demonstrate the recall trade-off associated with the number of partitions examined. They do not guarantee the same recall on other datasets, query distributions, or index configurations.
+These results demonstrate the recall trade-off associated with the number of partitions examined. The 25% setting was the lowest tested percentage to meet the target in this experiment. Latency was not measured by this diagnostic, so these results do not establish that 25% is the optimal operating point.
+
+The diagnostic is implemented by `diagnose_nprobe()` in `main.py`. In the current CLI, this function is not exposed as a command. To reproduce the table, invoke the diagnostic using a temporary entry point, then restore the normal `main()` entry point before running the regular CLI commands.
 
 ## 10. Mutation Experiment
 
 The mutation experiment changed the dataset distribution by:
 
 - Deleting 759 items from the busiest zone.
-- Adding 1,500 shifted items using category 19, which is an existing category.
+- Adding 1,500 shifted items drawn from a changed distribution.
 
-The purpose was to observe search behavior after the data distribution changed.
+The recorded output confirms the deletion and addition counts. Verify the exact category and distribution changes in the implementation before making more specific claims about the added items.
 
 ### Results after mutation
 
+The following values are from the recorded mutation run.
+
 | Bucket | Matches | Method | Recall@10 | p50 (ms) | p95 (ms) |
 |---|---:|---|---:|---:|---:|
-| ~100% | 30,741 | Planner | 1.000 | 3.558 | 5.187 |
-| ~100% | 30,741 | Post-filter | 1.000 | 3.223 | 4.754 |
-| ~100% | 30,741 | Pre-filter | 1.000 | 5.564 | 7.669 |
-| ~10% | 3,075 | Planner | 1.000 | 0.493 | 0.974 |
-| ~10% | 3,075 | Post-filter | 1.000 | 0.501 | 1.021 |
-| ~10% | 3,075 | Pre-filter | 1.000 | 0.360 | 0.636 |
-| ~1% | 307 | Planner | 1.000 | 0.267 | 0.477 |
-| ~1% | 307 | Post-filter | 1.000 | 0.329 | 0.531 |
-| ~1% | 307 | Pre-filter | 1.000 | 0.204 | 0.277 |
-| ~0.1% | 31 | Planner | 1.000 | 0.074 | 0.131 |
-| ~0.1% | 31 | Post-filter | 0.973 | 0.183 | 0.353 |
-| ~0.1% | 31 | Pre-filter | 1.000 | 0.078 | 0.111 |
-| Handful | 1 | Planner | 1.000 | 0.070 | 0.078 |
-| Handful | 1 | Post-filter | 1.000 | 0.314 | 0.523 |
-| Handful | 1 | Pre-filter | 1.000 | 0.069 | 0.076 |
+| ~100% | 30,741 | Planner | 1.000 | 5.544 | 9.745 |
+| ~100% | 30,741 | Post-filter | 1.000 | 4.724 | 6.745 |
+| ~100% | 30,741 | Pre-filter | 1.000 | 6.447 | 8.235 |
+| ~10% | 3,075 | Planner | 1.000 | 0.614 | 1.182 |
+| ~10% | 3,075 | Post-filter | 1.000 | 0.595 | 1.135 |
+| ~10% | 3,075 | Pre-filter | 1.000 | 0.450 | 1.216 |
+| ~1% | 307 | Planner | 1.000 | 0.374 | 0.821 |
+| ~1% | 307 | Post-filter | 1.000 | 0.454 | 0.794 |
+| ~1% | 307 | Pre-filter | 1.000 | 0.211 | 0.326 |
+| ~0.1% | 31 | Planner | 1.000 | 0.104 | 0.252 |
+| ~0.1% | 31 | Post-filter | 0.973 | 0.265 | 0.833 |
+| ~0.1% | 31 | Pre-filter | 1.000 | 0.104 | 0.163 |
+| Handful | 1 | Planner | 1.000 | 0.100 | 0.157 |
+| Handful | 1 | Post-filter | 1.000 | 0.460 | 0.861 |
+| Handful | 1 | Pre-filter | 1.000 | 0.101 | 0.115 |
 
 ### Observations
 
-The planner recorded recall@10 of `1.000` across all five mutation buckets. The post-filter baseline recorded recall@10 of `0.973` in the approximately 0.1% bucket.
+The planner recorded Recall@10 of `1.000` across all five mutation buckets in the latest run. The post-filter baseline recorded `0.973` in the approximately 0.1% bucket, which remains above the `0.95` target.
 
-The pre-filter baseline remained faster than the planner in several buckets. The mutation experiment also shows that the relative performance of the strategies can vary after the data distribution changes.
+The mutation experiment evaluates search behavior after the configured dataset changes. Latency and recall may vary across strategies after the distribution changes.
 
 More experiments using different mutation seeds and query sets would be needed to establish how consistently these observations hold.
 
@@ -302,23 +305,29 @@ More experiments using different mutation seeds and query sets would be needed t
 
 One measured limitation is that the planner does not always choose the fastest strategy.
 
-In the original benchmark's approximately 100% selectivity bucket, all 30,000 records matched the filter. The observed selectivity was therefore 100%. Under the configured thresholds, the planner selected `ivf_postfilter` for this broad-filter case.
+In the original benchmark's approximately 100% selectivity bucket, all 30,000 records matched the filter. Under the configured thresholds, the planner selected `ivf_postfilter` for this broad-filter case.
 
-| Metric | Planner | Pre-filter baseline |
-|---|---:|---:|
-| Matching records | 30,000 | 30,000 |
-| Observed selectivity | 100% | 100% |
-| Recall@10 | 1.000 | 1.000 |
-| p50 latency | 7.347 ms | 5.152 ms |
-| p95 latency | 9.276 ms | 7.908 ms |
+The latest recorded planner measurements are:
 
-The pre-filter baseline was faster in this case while achieving the same recorded recall@10. The planner's p50 latency was approximately 42.6% higher than the pre-filter baseline.
+| Metric | Planner |
+|---|---:|
+| Matching records | 30,000 |
+| Observed selectivity | 100% |
+| Recall@10 | 1.000 |
+| p50 latency | 5.635 ms |
+| p95 latency | 10.600 ms |
+
+For comparison, the pre-filter baseline recorded p50 latency of `4.895 ms` and p95 latency of `5.916 ms`, with Recall@10 of `1.000`.
+
+The planner's p50 latency was approximately 15.1% higher than the pre-filter baseline in this run.
 
 This is a measured performance limitation rather than a recall failure. It shows that the configured strategy thresholds do not guarantee the lowest latency for every workload.
 
 A related design limitation is that multiplying marginal selectivity estimates can misestimate combined-filter selectivity when metadata fields are correlated. This may lead the planner to select a suboptimal strategy.
 
 **Follow-up work:** Compare the strategies across additional broad-filter queries, evaluate whether the pre-filter path should be selected more often for broad filters, and recalibrate the thresholds using repeated measurements. Any threshold change should be validated against both latency and recall before being adopted.
+
+The broad-filter example demonstrates a measured performance limitation. A separate query-level experiment is still needed to establish a case where the planner selects a suboptimal strategy for the specific filter being evaluated.
 
 ## 12. Testing
 
@@ -334,7 +343,7 @@ Before submission, rerun the tests and all benchmark commands from the current r
 
 ## 13. AI-Use Disclosure
 
-AI tools were used for research and to understand concepts related to the problem, including filtered vector search, query planning, and benchmark evaluation. The implementation, testing, and benchmark results were reviewed against the actual project execution. All reported measurements are based on recorded runs, and I take responsibility for understanding and explaining the submitted work.
+AI tools were used for research and to understand concepts related to the problem, including filtered vector search, query planning, and benchmarking. The implementation, testing, and benchmark results were checked against actual project execution. This disclosure should accurately reflect the assistance used and the work performed.
 
 ## 14. Future Improvements
 
