@@ -209,36 +209,36 @@ The ground-truth calculation used for benchmark evaluation is separate from the 
 
 ## 8. Benchmark Results
 
-The following measurements are from the latest recorded execution of `python main.py benchmark`. Latency is reported in milliseconds.
+The following measurements are from the latest recorded execution of `python main.py benchmark --n 30000`. Latency is reported in milliseconds.
 
 | Bucket | Matches | Method | Recall@10 | p50 (ms) | p95 (ms) |
 |---|---:|---|---:|---:|---:|
-| ~100% | 30,000 | Planner | 1.000 | 3.748 | 5.715 |
-| ~100% | 30,000 | Post-filter | 1.000 | 3.085 | 3.896 |
-| ~100% | 30,000 | Pre-filter | 1.000 | 5.183 | 7.228 |
-| ~10% | 3,000 | Planner | 0.999 | 0.437 | 1.164 |
-| ~10% | 3,000 | Post-filter | 0.999 | 0.441 | 0.804 |
-| ~10% | 3,000 | Pre-filter | 1.000 | 0.293 | 0.426 |
-| ~1% | 301 | Planner | 1.000 | 0.252 | 0.358 |
-| ~1% | 301 | Post-filter | 1.000 | 0.242 | 0.400 |
-| ~1% | 301 | Pre-filter | 1.000 | 0.133 | 0.161 |
-| ~0.1% | 30 | Planner | 1.000 | 0.070 | 0.081 |
-| ~0.1% | 30 | Post-filter | 1.000 | 0.153 | 0.241 |
-| ~0.1% | 30 | Pre-filter | 1.000 | 0.070 | 0.097 |
-| Handful | 1 | Planner | 1.000 | 0.067 | 0.085 |
-| Handful | 1 | Post-filter | 1.000 | 0.313 | 0.453 |
-| Handful | 1 | Pre-filter | 1.000 | 0.067 | 0.080 |
+| ~100% | 30,000 | Planner | 1.000 | 3.619 | 5.079 |
+| ~100% | 30,000 | Post-filter | 1.000 | 3.434 | 4.085 |
+| ~100% | 30,000 | Pre-filter | 1.000 | 5.647 | 6.264 |
+| ~10% | 3,000 | Planner | 0.999 | 0.480 | 0.764 |
+| ~10% | 3,000 | Post-filter | 0.999 | 0.502 | 0.975 |
+| ~10% | 3,000 | Pre-filter | 1.000 | 0.381 | 0.592 |
+| ~1% | 301 | Planner | 1.000 | 0.319 | 0.538 |
+| ~1% | 301 | Post-filter | 1.000 | 0.326 | 0.490 |
+| ~1% | 301 | Pre-filter | 1.000 | 0.180 | 0.216 |
+| ~0.1% | 30 | Planner | 1.000 | 0.094 | 0.102 |
+| ~0.1% | 30 | Post-filter | 1.000 | 0.206 | 0.321 |
+| ~0.1% | 30 | Pre-filter | 1.000 | 0.094 | 0.161 |
+| Handful | 1 | Planner | 1.000 | 0.090 | 0.100 |
+| Handful | 1 | Post-filter | 1.000 | 0.416 | 0.461 |
+| Handful | 1 | Pre-filter | 1.000 | 0.090 | 0.097 |
 
 ### Observations
 
-- The planner recorded Recall@10 of at least `0.999` across all five benchmark buckets.
+- The planner recorded Recall@10 of at least `0.999` across all five benchmark buckets in this run, meeting the `0.95` target.
 - The planner selected different strategies according to the estimated filter selectivity.
 - Latency varied with the number of matching records and the retrieval strategy.
-- The pre-filter and post-filter baselines provide comparisons for assessing the planner's behavior.
-- In the broad-filter bucket, the post-filter baseline was faster than the planner in this recorded run.
-- For highly selective queries, the planner was faster than the post-filter baseline in the recorded results.
+- At approximately 10% selectivity, pre-filtering was faster than the planner in this run: p50 latency was `0.381 ms` compared with `0.480 ms`.
+- At approximately 1% selectivity, pre-filtering was also faster: p50 latency was `0.180 ms` compared with `0.319 ms`.
+- In the broad-filter bucket, the post-filter baseline was slightly faster than the planner in this run.
 
-The results show that no single approach should be assumed to be fastest across every workload. The planner's performance depends on the selected strategy, filter selectivity, and the overhead of the retrieval path.
+These measurements show that the configured planner does not always select the lowest-latency strategy. The results are from one execution and should not be treated as universal performance guarantees.
 
 ## 9. Partition-Probing Experiment
 
@@ -266,7 +266,7 @@ The diagnostic is implemented by `diagnose_nprobe()` in `main.py`. In the curren
 
 The mutation experiment evaluates how the search system behaves after changes to the dataset distribution.
 
-### Mutations Performed
+### Mutations performed
 
 - **Deletion:** Removed 759 items (approximately 10%) from the busiest zone, zone 0.
 - **Insertion:** Added 1,500 new items, representing 5% of the original 30,000-item dataset.
@@ -275,45 +275,45 @@ The mutation experiment evaluates how the search system behaves after changes to
 - **Price distribution shift:** New prices are sampled from a log-normal distribution using `log(1800)` as the mean parameter and `0.5` as the standard deviation parameter. Prices are clipped to the range `99–12,000`.
 - **Index and metadata updates:** After insertion, the IVF partitions and filter metadata are rebuilt to account for the changed dataset.
 
-### Results After Mutation
+### Results after mutation
 
-The following measurements were recorded during the latest execution of `python main.py mutation`.
+The following measurements are from the recorded execution of `python main.py mutation`. Latency is reported in milliseconds.
 
 | Selectivity bucket | Matches | Method | Recall@10 | p50 (ms) | p95 (ms) |
 |---|---:|---|---:|---:|---:|
-| ~100% | 30,741 | Planner | 1.000 | 3.655 | 6.637 |
-| ~100% | 30,741 | Post-filter | 1.000 | 3.889 | 6.076 |
-| ~100% | 30,741 | Pre-filter | 1.000 | 6.299 | 8.549 |
-| ~10% | 3,075 | Planner | 1.000 | 0.500 | 2.611 |
-| ~10% | 3,075 | Post-filter | 1.000 | 0.519 | 1.702 |
-| ~10% | 3,075 | Pre-filter | 1.000 | 0.528 | 1.093 |
-| ~1% | 307 | Planner | 1.000 | 0.326 | 0.709 |
-| ~1% | 307 | Post-filter | 1.000 | 0.428 | 0.708 |
-| ~1% | 307 | Pre-filter | 1.000 | 0.162 | 0.341 |
-| ~0.1% | 31 | Planner | 1.000 | 0.080 | 0.158 |
-| ~0.1% | 31 | Post-filter | 0.973 | 0.195 | 0.454 |
-| ~0.1% | 31 | Pre-filter | 1.000 | 0.072 | 0.154 |
-| Handful | 1 | Planner | 1.000 | 0.071 | 0.171 |
-| Handful | 1 | Post-filter | 1.000 | 0.324 | 0.644 |
-| Handful | 1 | Pre-filter | 1.000 | 0.077 | 0.139 |
+| ~100% | 30,741 | Planner | 1.000 | 3.947 | 5.833 |
+| ~100% | 30,741 | Post-filter | 1.000 | 8.390 | 12.349 |
+| ~100% | 30,741 | Pre-filter | 1.000 | 6.912 | 14.548 |
+| ~10% | 3,075 | Planner | 1.000 | 0.554 | 0.910 |
+| ~10% | 3,075 | Post-filter | 1.000 | 0.575 | 1.103 |
+| ~10% | 3,075 | Pre-filter | 1.000 | 0.407 | 0.707 |
+| ~1% | 307 | Planner | 1.000 | 0.339 | 0.402 |
+| ~1% | 307 | Post-filter | 1.000 | 0.428 | 0.680 |
+| ~1% | 307 | Pre-filter | 1.000 | 0.215 | 0.343 |
+| ~0.1% | 31 | Planner | 1.000 | 0.103 | 0.231 |
+| ~0.1% | 31 | Post-filter | 0.973 | 0.284 | 0.682 |
+| ~0.1% | 31 | Pre-filter | 1.000 | 0.103 | 0.168 |
+| Handful | 1 | Planner | 1.000 | 0.120 | 0.235 |
+| Handful | 1 | Post-filter | 1.000 | 0.507 | 1.111 |
+| Handful | 1 | Pre-filter | 1.000 | 0.111 | 0.260 |
 
 ### Observations
 
 - The planner achieved Recall@10 of `1.000` in all five selectivity buckets in this run.
 - The post-filter baseline achieved Recall@10 of `0.973` in the approximately `0.1%` selectivity bucket and `1.000` in the other four buckets.
 - The planner maintained the target Recall@10 of at least `0.95` across all five buckets in this experiment.
-- At approximately `1%` selectivity, the pre-filter baseline was faster than the planner in this run: p50 latency was `0.162 ms` for pre-filtering and `0.326 ms` for the planner.
-- The measurements show that the planner's strategy does not always produce the lowest observed latency. Performance depends on selectivity and the selected search strategy.
+- At approximately `1%` selectivity, pre-filtering was faster than the planner: p50 latency was `0.215 ms` compared with `0.339 ms`.
+- The measurements show that the planner's strategy does not always produce the lowest observed latency.
 
 ### Limitations
 
 The experiment rebuilds the IVF partitions and filter metadata after insertion. It therefore evaluates search behavior after the configured dataset changes and the index is rebuilt, rather than measuring continuous incremental updates without rebuilding.
 
-The reported latency values are measurements from one execution. They can vary with runtime conditions, so they should not be interpreted as guaranteed performance. Additional runs with different mutation seeds and query sets would be needed to evaluate the consistency of these results more thoroughly.
+The reported latency values are measurements from one execution. They can vary with runtime conditions and should not be interpreted as guaranteed performance. Additional runs with different mutation seeds and query sets would be needed to evaluate consistency more thoroughly.
 
 ## 11. Measured Planner Limitation and Failure Case
 
-A reproducible diagnostic was run using the fixed dataset seed (`20261023`), 30,000 vectors, and 100 query vectors. The filter used the 10th-percentile price threshold:
+A diagnostic was run using the fixed dataset seed (`20261023`), 30,000 vectors, and 100 query vectors. The filter used the 10th-percentile price threshold:
 
 - Filter: `price_max = 275.4617`
 - Matching records: 3,000
@@ -323,25 +323,27 @@ A reproducible diagnostic was run using the fixed dataset seed (`20261023`), 30,
 
 All three strategies achieved Recall@10 of `1.0000` in each of the three recorded runs.
 
-### Recorded p50 latency
+### Recorded p50 latency (ms)
 
 | Run | Planner | Prefilter | Postfilter |
 |---|---:|---:|---:|
-| 1 | 0.948 ms | 0.773 ms | 0.766 ms |
-| 2 | 3.487 ms | 2.468 ms | 3.266 ms |
-| 3 | 0.758 ms | 0.540 ms | 0.727 ms |
+| 1 | 1.082 | 0.779 | 0.771 |
+| 2 | 0.952 | 0.803 | 0.880 |
+| 3 | 2.091 | 2.120 | 2.769 |
 
-### Recorded p95 latency
+### Recorded p95 latency (ms)
 
 | Run | Planner | Prefilter | Postfilter |
 |---|---:|---:|---:|
-| 1 | 2.138 ms | 1.644 ms | 1.967 ms |
-| 2 | 5.145 ms | 3.742 ms | 5.610 ms |
-| 3 | 1.755 ms | 0.871 ms | 1.191 ms |
+| 1 | 2.536 | 1.288 | 1.462 |
+| 2 | 1.524 | 1.254 | 1.589 |
+| 3 | 4.135 | 2.657 | 6.799 |
 
-Prefilter had lower p50 latency than the planner in all three recorded runs, while Recall@10 remained unchanged. This is evidence that the configured planner does not consistently select the lowest-latency strategy for this workload.
+The planner selected `ivf_postfilter` for this 10%-selectivity query. Prefiltering had lower p50 latency in two of the three repeated runs, while the planner was slightly faster than prefiltering in the third run. All strategies achieved Recall@10 of `1.0000`.
 
-The measured timings vary between runs, so these observations should not be interpreted as universal performance guarantees. They also do not establish that the selectivity estimate is incorrect: the actual and estimated selectivity were both 10%. The observed limitation is specifically the strategy choice and its measured performance for this workload.
+This demonstrates that the fixed-threshold planner does not consistently choose the lowest-latency strategy on this workload. Timing varies between runs, so this should be treated as a measured limitation rather than a universal performance claim.
+
+This diagnostic does **not** show that the selectivity estimate was wrong: the actual and estimated selectivity were both 10%. The observed limitation is the strategy choice and its measured performance for this workload. The current planner uses fixed selectivity thresholds and does not dynamically adapt those thresholds to runtime measurements.
 
 ### Reproduction
 
@@ -351,7 +353,7 @@ Run:
 python planner_diagnostic.py
 ```
 
-The diagnostic uses the same query vectors for the planner, prefilter, and postfilter comparisons within each run and reports actual selectivity, estimated selectivity, Recall@10, and latency.
+The diagnostic uses the same query vectors for the planner, pre-filter, and post-filter comparisons within each run and reports actual selectivity, estimated selectivity, Recall@10, and latency. Latency is sensitive to runtime conditions, so repeated runs may produce different timings.
 
 ## 12. Testing
 
