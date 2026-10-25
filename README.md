@@ -303,31 +303,45 @@ More experiments using different mutation seeds and query sets would be needed t
 
 ## 11. Measured Planner Limitation and Failure Case
 
-One measured limitation is that the planner does not always choose the fastest strategy.
+A reproducible diagnostic was run using the fixed dataset seed (`20261023`), 30,000 vectors, and 100 query vectors. The filter used the 10th-percentile price threshold:
 
-In the original benchmark's approximately 100% selectivity bucket, all 30,000 records matched the filter. Under the configured thresholds, the planner selected `ivf_postfilter` for this broad-filter case.
+- Filter: `price_max = 275.4617`
+- Matching records: 3,000
+- Actual selectivity: 10%
+- Estimated selectivity: 10%
+- Planner-selected strategy: `ivf_postfilter`
 
-The latest recorded planner measurements are:
+All three strategies achieved Recall@10 of `1.0000` in each of the three recorded runs.
 
-| Metric | Planner |
-|---|---:|
-| Matching records | 30,000 |
-| Observed selectivity | 100% |
-| Recall@10 | 1.000 |
-| p50 latency | 3.748 ms |
-| p95 latency | 5.715 ms |
+### Recorded p50 latency
 
-For comparison, the post-filter baseline recorded p50 latency of `3.085 ms` and p95 latency of `3.896 ms`, with Recall@10 of `1.000`.
+| Run | Planner | Prefilter | Postfilter |
+|---|---:|---:|---:|
+| 1 | 0.948 ms | 0.773 ms | 0.766 ms |
+| 2 | 3.487 ms | 2.468 ms | 3.266 ms |
+| 3 | 0.758 ms | 0.540 ms | 0.727 ms |
 
-The planner's p50 latency was approximately 21.5% higher than the post-filter baseline in this run.
+### Recorded p95 latency
 
-This is a measured performance limitation rather than a recall failure. It shows that the configured strategy thresholds do not guarantee the lowest latency for every workload.
+| Run | Planner | Prefilter | Postfilter |
+|---|---:|---:|---:|
+| 1 | 2.138 ms | 1.644 ms | 1.967 ms |
+| 2 | 5.145 ms | 3.742 ms | 5.610 ms |
+| 3 | 1.755 ms | 0.871 ms | 1.191 ms |
 
-A related design limitation is that multiplying marginal selectivity estimates can misestimate combined-filter selectivity when metadata fields are correlated. This may lead the planner to select a suboptimal strategy.
+Prefilter had lower p50 latency than the planner in all three recorded runs, while Recall@10 remained unchanged. This is evidence that the configured planner does not consistently select the lowest-latency strategy for this workload.
 
-**Follow-up work:** Compare the strategies across additional broad-filter queries, evaluate whether the post-filter path should be selected more often for broad filters, and recalibrate the thresholds using repeated measurements. Any threshold change should be validated against both latency and recall before being adopted.
+The measured timings vary between runs, so these observations should not be interpreted as universal performance guarantees. They also do not establish that the selectivity estimate is incorrect: the actual and estimated selectivity were both 10%. The observed limitation is specifically the strategy choice and its measured performance for this workload.
 
-The broad-filter example demonstrates a measured performance limitation. A separate query-level experiment is still needed to establish a case where the planner selects a suboptimal strategy for the specific filter being evaluated.
+### Reproduction
+
+Run:
+
+```powershell
+python planner_diagnostic.py
+```
+
+The diagnostic uses the same query vectors for the planner, prefilter, and postfilter comparisons within each run and reports actual selectivity, estimated selectivity, Recall@10, and latency.
 
 ## 12. Testing
 
