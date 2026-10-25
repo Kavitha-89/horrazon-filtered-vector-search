@@ -264,42 +264,52 @@ The diagnostic is implemented by `diagnose_nprobe()` in `main.py`. In the curren
 
 ## 10. Mutation Experiment
 
-The mutation experiment changed the dataset distribution by:
+The mutation experiment evaluates how the search system behaves after changes to the dataset distribution.
 
-- Deleting 759 items from the busiest zone.
-- Adding 1,500 shifted items.
+### Mutations Performed
 
-The recorded output confirms the deletion and addition counts. The precise distribution changes should be interpreted according to the mutation logic implemented in `main.py`.
+- **Deletion:** Removed 759 items (approximately 10%) from the busiest zone, zone 0.
+- **Insertion:** Added 1,500 new items, representing 5% of the original 30,000-item dataset.
+- **Category shift:** New items use category `20`, outside the original category range of `0–19`.
+- **Vector distribution shift:** New vectors are sampled from a normal distribution with mean `5.5` and standard deviation `1.0`, differing from the original dataset distribution.
+- **Price distribution shift:** New prices are sampled from a log-normal distribution using `log(1800)` as the mean parameter and `0.5` as the standard deviation parameter. Prices are clipped to the range `99–12,000`.
+- **Index and metadata updates:** After insertion, the IVF partitions and filter metadata are rebuilt to account for the changed dataset.
 
-### Results after mutation
+### Results After Mutation
 
-The following measurements are from the latest recorded execution of `python main.py mutation`.
+The following measurements were recorded during the latest execution of `python main.py mutation`.
 
-| Bucket | Matches | Method | Recall@10 | p50 (ms) | p95 (ms) |
+| Selectivity bucket | Matches | Method | Recall@10 | p50 (ms) | p95 (ms) |
 |---|---:|---|---:|---:|---:|
-| ~100% | 30,741 | Planner | 1.000 | 3.749 | 6.279 |
-| ~100% | 30,741 | Post-filter | 1.000 | 3.430 | 5.506 |
-| ~100% | 30,741 | Pre-filter | 1.000 | 5.163 | 6.954 |
-| ~10% | 3,075 | Planner | 1.000 | 0.421 | 0.947 |
-| ~10% | 3,075 | Post-filter | 1.000 | 0.416 | 0.747 |
-| ~10% | 3,075 | Pre-filter | 1.000 | 0.308 | 0.692 |
-| ~1% | 307 | Planner | 1.000 | 0.315 | 0.573 |
-| ~1% | 307 | Post-filter | 1.000 | 0.448 | 0.773 |
-| ~1% | 307 | Pre-filter | 1.000 | 0.178 | 0.459 |
-| ~0.1% | 31 | Planner | 1.000 | 0.088 | 0.198 |
-| ~0.1% | 31 | Post-filter | 0.973 | 0.271 | 0.669 |
-| ~0.1% | 31 | Pre-filter | 1.000 | 0.079 | 0.099 |
-| Handful | 1 | Planner | 1.000 | 0.076 | 0.114 |
-| Handful | 1 | Post-filter | 1.000 | 0.350 | 0.520 |
-| Handful | 1 | Pre-filter | 1.000 | 0.076 | 0.087 |
+| ~100% | 30,741 | Planner | 1.000 | 3.655 | 6.637 |
+| ~100% | 30,741 | Post-filter | 1.000 | 3.889 | 6.076 |
+| ~100% | 30,741 | Pre-filter | 1.000 | 6.299 | 8.549 |
+| ~10% | 3,075 | Planner | 1.000 | 0.500 | 2.611 |
+| ~10% | 3,075 | Post-filter | 1.000 | 0.519 | 1.702 |
+| ~10% | 3,075 | Pre-filter | 1.000 | 0.528 | 1.093 |
+| ~1% | 307 | Planner | 1.000 | 0.326 | 0.709 |
+| ~1% | 307 | Post-filter | 1.000 | 0.428 | 0.708 |
+| ~1% | 307 | Pre-filter | 1.000 | 0.162 | 0.341 |
+| ~0.1% | 31 | Planner | 1.000 | 0.080 | 0.158 |
+| ~0.1% | 31 | Post-filter | 0.973 | 0.195 | 0.454 |
+| ~0.1% | 31 | Pre-filter | 1.000 | 0.072 | 0.154 |
+| Handful | 1 | Planner | 1.000 | 0.071 | 0.171 |
+| Handful | 1 | Post-filter | 1.000 | 0.324 | 0.644 |
+| Handful | 1 | Pre-filter | 1.000 | 0.077 | 0.139 |
 
 ### Observations
 
-The planner recorded Recall@10 of `1.000` across all five mutation buckets in the latest run. The post-filter baseline recorded `0.973` in the approximately 0.1% bucket, which remains above the `0.95` target.
+- The planner achieved Recall@10 of `1.000` in all five selectivity buckets in this run.
+- The post-filter baseline achieved Recall@10 of `0.973` in the approximately `0.1%` selectivity bucket and `1.000` in the other four buckets.
+- The planner maintained the target Recall@10 of at least `0.95` across all five buckets in this experiment.
+- At approximately `1%` selectivity, the pre-filter baseline was faster than the planner in this run: p50 latency was `0.162 ms` for pre-filtering and `0.326 ms` for the planner.
+- The measurements show that the planner's strategy does not always produce the lowest observed latency. Performance depends on selectivity and the selected search strategy.
 
-The mutation experiment evaluates search behavior after the configured dataset changes. Latency and recall may vary across strategies after the distribution changes.
+### Limitations
 
-More experiments using different mutation seeds and query sets would be needed to establish how consistently these observations hold.
+The experiment rebuilds the IVF partitions and filter metadata after insertion. It therefore evaluates search behavior after the configured dataset changes and the index is rebuilt, rather than measuring continuous incremental updates without rebuilding.
+
+The reported latency values are measurements from one execution. They can vary with runtime conditions, so they should not be interpreted as guaranteed performance. Additional runs with different mutation seeds and query sets would be needed to evaluate the consistency of these results more thoroughly.
 
 ## 11. Measured Planner Limitation and Failure Case
 

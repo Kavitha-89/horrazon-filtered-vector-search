@@ -223,7 +223,7 @@ class IVFIndex:
         rng = np.random.default_rng(seed)
         d = self.data
         dim = d.vectors.shape[1]
-        new_cat = np.full(count, 19, dtype=np.int16)
+        new_cat = np.full(count, 20, dtype=np.int16)
         new_zone = rng.integers(0, 5, size=count).astype(np.int16)
         new_price = rng.lognormal(np.log(1800), 0.5, size=count).clip(99, 12000).astype(np.float32)
         new_vectors = rng.normal(5.5, 1.0, size=(count, dim)).astype(np.float32)
@@ -477,7 +477,7 @@ def main():
     else:
         qid = 0
         q = data.vectors[qid]
-        for filt in [dict(), dict(zone=0), dict(category=0, zone=3)]:
+        for filt in [dict(), dict(zone=0), dict(category=0, zone=3), dict(zone=17)]:
             _, chosen, est = index.search(q, **filt)
             print(f"filters={filt} estimated_selectivity={est:.4f} -> {chosen}")
 
