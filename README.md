@@ -87,7 +87,7 @@ Run the tests:
 python -m pytest -q
 ```
 
-The recorded test run completed with **4 passing tests**.
+The latest recorded test run completed with **4 passing tests**.
 
 ## 4. Dataset
 
@@ -209,25 +209,25 @@ The ground-truth calculation used for benchmark evaluation is separate from the 
 
 ## 8. Benchmark Results
 
-The following values are from the recorded benchmark output. Latency is reported in milliseconds.
+The following measurements are from the latest recorded execution of `python main.py benchmark`. Latency is reported in milliseconds.
 
 | Bucket | Matches | Method | Recall@10 | p50 (ms) | p95 (ms) |
 |---|---:|---|---:|---:|---:|
-| ~100% | 30,000 | Planner | 1.000 | 5.635 | 10.600 |
-| ~100% | 30,000 | Post-filter | 1.000 | 2.654 | 3.905 |
-| ~100% | 30,000 | Pre-filter | 1.000 | 4.895 | 5.916 |
-| ~10% | 3,000 | Planner | 0.999 | 0.515 | 0.828 |
-| ~10% | 3,000 | Post-filter | 0.999 | 0.505 | 0.799 |
-| ~10% | 3,000 | Pre-filter | 1.000 | 0.359 | 0.414 |
-| ~1% | 301 | Planner | 1.000 | 0.311 | 0.380 |
-| ~1% | 301 | Post-filter | 1.000 | 0.326 | 0.522 |
-| ~1% | 301 | Pre-filter | 1.000 | 0.180 | 0.211 |
-| ~0.1% | 30 | Planner | 1.000 | 0.095 | 0.141 |
-| ~0.1% | 30 | Post-filter | 1.000 | 0.217 | 0.301 |
-| ~0.1% | 30 | Pre-filter | 1.000 | 0.095 | 0.108 |
-| Handful | 1 | Planner | 1.000 | 0.092 | 0.112 |
-| Handful | 1 | Post-filter | 1.000 | 0.481 | 0.699 |
-| Handful | 1 | Pre-filter | 1.000 | 0.097 | 0.110 |
+| ~100% | 30,000 | Planner | 1.000 | 3.748 | 5.715 |
+| ~100% | 30,000 | Post-filter | 1.000 | 3.085 | 3.896 |
+| ~100% | 30,000 | Pre-filter | 1.000 | 5.183 | 7.228 |
+| ~10% | 3,000 | Planner | 0.999 | 0.437 | 1.164 |
+| ~10% | 3,000 | Post-filter | 0.999 | 0.441 | 0.804 |
+| ~10% | 3,000 | Pre-filter | 1.000 | 0.293 | 0.426 |
+| ~1% | 301 | Planner | 1.000 | 0.252 | 0.358 |
+| ~1% | 301 | Post-filter | 1.000 | 0.242 | 0.400 |
+| ~1% | 301 | Pre-filter | 1.000 | 0.133 | 0.161 |
+| ~0.1% | 30 | Planner | 1.000 | 0.070 | 0.081 |
+| ~0.1% | 30 | Post-filter | 1.000 | 0.153 | 0.241 |
+| ~0.1% | 30 | Pre-filter | 1.000 | 0.070 | 0.097 |
+| Handful | 1 | Planner | 1.000 | 0.067 | 0.085 |
+| Handful | 1 | Post-filter | 1.000 | 0.313 | 0.453 |
+| Handful | 1 | Pre-filter | 1.000 | 0.067 | 0.080 |
 
 ### Observations
 
@@ -235,7 +235,7 @@ The following values are from the recorded benchmark output. Latency is reported
 - The planner selected different strategies according to the estimated filter selectivity.
 - Latency varied with the number of matching records and the retrieval strategy.
 - The pre-filter and post-filter baselines provide comparisons for assessing the planner's behavior.
-- In the broad-filter bucket, the pre-filter baseline was faster than the planner in this recorded run.
+- In the broad-filter bucket, the post-filter baseline was faster than the planner in this recorded run.
 - For highly selective queries, the planner was faster than the post-filter baseline in the recorded results.
 
 The results show that no single approach should be assumed to be fastest across every workload. The planner's performance depends on the selected strategy, filter selectivity, and the overhead of the retrieval path.
@@ -267,31 +267,31 @@ The diagnostic is implemented by `diagnose_nprobe()` in `main.py`. In the curren
 The mutation experiment changed the dataset distribution by:
 
 - Deleting 759 items from the busiest zone.
-- Adding 1,500 shifted items drawn from a changed distribution.
+- Adding 1,500 shifted items.
 
-The recorded output confirms the deletion and addition counts. Verify the exact category and distribution changes in the implementation before making more specific claims about the added items.
+The recorded output confirms the deletion and addition counts. The precise distribution changes should be interpreted according to the mutation logic implemented in `main.py`.
 
 ### Results after mutation
 
-The following values are from the recorded mutation run.
+The following measurements are from the latest recorded execution of `python main.py mutation`.
 
 | Bucket | Matches | Method | Recall@10 | p50 (ms) | p95 (ms) |
 |---|---:|---|---:|---:|---:|
-| ~100% | 30,741 | Planner | 1.000 | 5.544 | 9.745 |
-| ~100% | 30,741 | Post-filter | 1.000 | 4.724 | 6.745 |
-| ~100% | 30,741 | Pre-filter | 1.000 | 6.447 | 8.235 |
-| ~10% | 3,075 | Planner | 1.000 | 0.614 | 1.182 |
-| ~10% | 3,075 | Post-filter | 1.000 | 0.595 | 1.135 |
-| ~10% | 3,075 | Pre-filter | 1.000 | 0.450 | 1.216 |
-| ~1% | 307 | Planner | 1.000 | 0.374 | 0.821 |
-| ~1% | 307 | Post-filter | 1.000 | 0.454 | 0.794 |
-| ~1% | 307 | Pre-filter | 1.000 | 0.211 | 0.326 |
-| ~0.1% | 31 | Planner | 1.000 | 0.104 | 0.252 |
-| ~0.1% | 31 | Post-filter | 0.973 | 0.265 | 0.833 |
-| ~0.1% | 31 | Pre-filter | 1.000 | 0.104 | 0.163 |
-| Handful | 1 | Planner | 1.000 | 0.100 | 0.157 |
-| Handful | 1 | Post-filter | 1.000 | 0.460 | 0.861 |
-| Handful | 1 | Pre-filter | 1.000 | 0.101 | 0.115 |
+| ~100% | 30,741 | Planner | 1.000 | 3.749 | 6.279 |
+| ~100% | 30,741 | Post-filter | 1.000 | 3.430 | 5.506 |
+| ~100% | 30,741 | Pre-filter | 1.000 | 5.163 | 6.954 |
+| ~10% | 3,075 | Planner | 1.000 | 0.421 | 0.947 |
+| ~10% | 3,075 | Post-filter | 1.000 | 0.416 | 0.747 |
+| ~10% | 3,075 | Pre-filter | 1.000 | 0.308 | 0.692 |
+| ~1% | 307 | Planner | 1.000 | 0.315 | 0.573 |
+| ~1% | 307 | Post-filter | 1.000 | 0.448 | 0.773 |
+| ~1% | 307 | Pre-filter | 1.000 | 0.178 | 0.459 |
+| ~0.1% | 31 | Planner | 1.000 | 0.088 | 0.198 |
+| ~0.1% | 31 | Post-filter | 0.973 | 0.271 | 0.669 |
+| ~0.1% | 31 | Pre-filter | 1.000 | 0.079 | 0.099 |
+| Handful | 1 | Planner | 1.000 | 0.076 | 0.114 |
+| Handful | 1 | Post-filter | 1.000 | 0.350 | 0.520 |
+| Handful | 1 | Pre-filter | 1.000 | 0.076 | 0.087 |
 
 ### Observations
 
@@ -314,36 +314,38 @@ The latest recorded planner measurements are:
 | Matching records | 30,000 |
 | Observed selectivity | 100% |
 | Recall@10 | 1.000 |
-| p50 latency | 5.635 ms |
-| p95 latency | 10.600 ms |
+| p50 latency | 3.748 ms |
+| p95 latency | 5.715 ms |
 
-For comparison, the pre-filter baseline recorded p50 latency of `4.895 ms` and p95 latency of `5.916 ms`, with Recall@10 of `1.000`.
+For comparison, the post-filter baseline recorded p50 latency of `3.085 ms` and p95 latency of `3.896 ms`, with Recall@10 of `1.000`.
 
-The planner's p50 latency was approximately 15.1% higher than the pre-filter baseline in this run.
+The planner's p50 latency was approximately 21.5% higher than the post-filter baseline in this run.
 
 This is a measured performance limitation rather than a recall failure. It shows that the configured strategy thresholds do not guarantee the lowest latency for every workload.
 
 A related design limitation is that multiplying marginal selectivity estimates can misestimate combined-filter selectivity when metadata fields are correlated. This may lead the planner to select a suboptimal strategy.
 
-**Follow-up work:** Compare the strategies across additional broad-filter queries, evaluate whether the pre-filter path should be selected more often for broad filters, and recalibrate the thresholds using repeated measurements. Any threshold change should be validated against both latency and recall before being adopted.
+**Follow-up work:** Compare the strategies across additional broad-filter queries, evaluate whether the post-filter path should be selected more often for broad filters, and recalibrate the thresholds using repeated measurements. Any threshold change should be validated against both latency and recall before being adopted.
 
 The broad-filter example demonstrates a measured performance limitation. A separate query-level experiment is still needed to establish a case where the planner selects a suboptimal strategy for the specific filter being evaluated.
 
 ## 12. Testing
 
-The recorded automated test command was:
+The latest recorded automated test command was:
 
 ```powershell
 python -m pytest -q
 ```
 
-The recorded run completed with four passing tests.
+The run completed with four passing tests:
 
-Before submission, rerun the tests and all benchmark commands from the current repository state. Confirm that the generated results match the values reported in this README.
+```text
+4 passed in 0.21s
+```
 
 ## 13. AI-Use Disclosure
 
-AI tools were used for research and to understand concepts related to the problem, including filtered vector search, query planning, and benchmarking. The implementation, testing, and benchmark results were checked against actual project execution. This disclosure should accurately reflect the assistance used and the work performed.
+AI tools were used for research and to understand concepts related to the problem, including filtered vector search, query planning, and benchmarking. The implementation, testing, and benchmark results were checked against actual project execution.
 
 ## 14. Future Improvements
 
